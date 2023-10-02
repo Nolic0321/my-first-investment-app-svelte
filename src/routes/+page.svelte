@@ -1,2 +1,2 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<h1>My First Investment App</h1>
+<body>Let your allowance, birthday money, christmas money, lemonade money, <span style="font-style: italic">ANY</span> money make MORE money for you!</body>
