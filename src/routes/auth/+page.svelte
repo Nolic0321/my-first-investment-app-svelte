@@ -1,6 +1,7 @@
 <script lang='ts'>
-    import {app, auth} from '../../firebase';
+    import {auth} from '../../firebase';
 	import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+	import {goto} from "$app/navigation";
 	let email = '';
 	let password = '';
 
@@ -10,8 +11,8 @@
       return;
 	}
 		try{
-			const userCredentials = await signInWithEmailAndPassword(auth, email, password);
-			console.log(`user logged in: ${userCredentials}`);
+			await signInWithEmailAndPassword(auth, email, password);
+			goto('/parent/dashboard');
         }catch(error){
 			console.log(error.message);
         }
@@ -30,6 +31,6 @@
 <form>
     <input type="email" bind:value={email} placeholder="Email" />
     <input type="password" bind:value={password} placeholder="Password" />
-    <button type="button" on:click={login}>Login</button>
+    <button class="bg-sky-500 hover:bg-sky-700 rounded px-2 py-1" type="button" on:click={login}>Login</button>
     <button type="button" on:click={signUp}>Sign Up</button>
 </form>
