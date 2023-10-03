@@ -1,32 +1,54 @@
 <script lang='ts'>
     import Button from '../../components/Button.svelte';
-    import {auth} from '../../firebase';
+    import {getAuth} from 'firebase/auth';
 	import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 	import {goto} from "$app/navigation";
+	import { error } from '@sveltejs/kit';
+	import type { FirebaseError } from 'firebase/app';
 	let email = '';
 	let password = '';
+    let errorMsg = '';
+    let auth = getAuth();
 
-	const login = async() =>{
+	const login = () =>{
+        
     if (!auth) {
       console.error("Firebase Auth not initialized");
       return;
 	}
-		try{
-			await signInWithEmailAndPassword(auth, email, password);
-			goto('/parent/dashboard');
-        }catch(error){
-			console.log(error.message);
-        }
+			signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                console.log(`user logged in: ${userCredential}`);
+                goto('/dashboard');
+                // ...
+            })
+            .catch((error:FirebaseError) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.log(`error: ${errorCode} ${errorMessage}`);
+                errorMsg = errorMessage;
+                // ..
+            });
     }
 
-	const signUp = async()=>{
-		try{
-			const userCredentials = await createUserWithEmailAndPassword(auth!,email, password);
-			console.log(`user signed up: ${userCredentials}`);
-        }catch(error){
-            console.log(error.message);
-		}
+	const signUp = ()=>{
+			createUserWithEmailAndPassword(auth!,email, password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+			    console.log(`user signed up: ${userCredential}`);
+                // ...
+            })
+            .catch((error:FirebaseError) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // ..
+            });
     }
+
+    const handleSubmit = async (e:Event) => e.preventDefault();
 </script>
 
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -36,7 +58,7 @@
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form class="space-y-6">
+        <form class="space-y-6" on:submit={handleSubmit}>
             <div>
                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
                 <div class="mt-2">
@@ -55,6 +77,9 @@
                     <input id="password" bind:value={password} name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                 </div>
             </div>
+            {#if errorMsg}
+                <div  class="text-red-400">{errorMsg}</div>
+            {/if}
 
             <div>
                 <Button buttonText="Sign in" on:buttonPressed={login}/>
